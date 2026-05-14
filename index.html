@@ -780,6 +780,56 @@ footer .footer-sub{font-family:var(--mono);font-size:10px;color:rgba(255,255,255
 </head>
 <body>
 
+<!-- MIGRATION BANNER -->
+<div id="migrate-banner" style="display:block;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1C293C;border-bottom:3px solid #FDC800;padding:0;">
+  <div style="display:flex;align-items:center;gap:12px;padding:10px 18px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:200px;">
+      <div style="font-family:monospace;font-size:11px;font-weight:700;color:#FDC800;letter-spacing:.15em;text-transform:uppercase;">
+        ⚠ This tool has moved to Khata.io — migrating in <span id="migrate-countdown">15</span>s
+      </div>
+      <div style="font-family:monospace;font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;">
+        Your data will be downloaded automatically. Upload it on the next page to restore everything.
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+      <button onclick="migrateToKhata()" style="padding:8px 16px;background:#FDC800;border:2px solid #FDC800;font-family:monospace;font-size:11px;font-weight:700;cursor:pointer;color:#1C293C;white-space:nowrap;">
+        Migrate Now →
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const b=document.getElementById('migrate-banner');
+  if(b) document.body.style.paddingTop=(b.offsetHeight+3)+'px';
+
+  let secs=15;
+  const tick=setInterval(()=>{
+    secs--;
+    const el=document.getElementById('migrate-countdown');
+    if(el) el.textContent=secs;
+    if(secs<=0){clearInterval(tick);migrateToKhata();}
+  },1000);
+})();
+
+function migrateToKhata(){
+  const ALL_KEYS=['hsc26_done','hsc26_pomo','hsc26_drill','hsc26_dis','hsc26_conf','hsc26_rev','hsc26_pomo_settings','hsc26_prefs'];
+  const data={};
+  ALL_KEYS.forEach(k=>{try{const s=localStorage.getItem(k);if(s)data[k]=JSON.parse(s);}catch{}});
+  data._exported=new Date().toISOString();
+  data._source='hsc2026-html';
+
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='hsc2026-migration-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(a.href);
+
+  setTimeout(()=>{
+    window.location.href='https://khata.io/hsc-dashboard?migrate=1';
+  },800);
+}
+</script>
 
 <!-- NAV -->
 <!-- Mobile Drawer -->
